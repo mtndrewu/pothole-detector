@@ -37,4 +37,4 @@ from ultralytics import YOLO
 model = YOLO('yolov8n.pt')  # or your chosen model
 
 # Train the model
-model.train(data='./data.yaml', epochs=5, imgsz=416, batch=2)
+model.train(data='./data.yaml', epochs=5, imgsz=416, batch=2, device='cpu')
