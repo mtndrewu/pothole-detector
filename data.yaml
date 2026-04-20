@@ -1,0 +1,7 @@
+names:
+- pothole
+nc: 1
+path: /home/vscode/.cache/kagglehub/datasets/anggadwisunarto/potholes-detection-yolov8/versions/3
+test: /home/vscode/.cache/kagglehub/datasets/anggadwisunarto/potholes-detection-yolov8/versions/3/test/images
+train: /home/vscode/.cache/kagglehub/datasets/anggadwisunarto/potholes-detection-yolov8/versions/3/train/images
+val: /home/vscode/.cache/kagglehub/datasets/anggadwisunarto/potholes-detection-yolov8/versions/3/valid/images
