@@ -3,3 +3,4 @@ ultralytics
 kagglehub
 PyYAML
 streamlit-webrtc
+opencv-python-headless
