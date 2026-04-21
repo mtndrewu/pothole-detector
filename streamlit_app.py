@@ -63,9 +63,10 @@ if model:
         st.header("Upload a Video")
         uploaded_video = st.file_uploader("Choose a video", type=["mp4", "avi", "mov"])
         if uploaded_video is not None:
-            st.video(uploaded_video, format=uploaded_video.type)
+            st.video(uploaded_video)
             st.write("Running tracking on video. This may take a while...")
-            video_path = "temp_video.mp4"
+            file_ext = os.path.splitext(uploaded_video.name)[1]
+            video_path = f"temp_video{file_ext}"
             with open(video_path, "wb") as f:
                 f.write(uploaded_video.getbuffer())
             results = model.track(source=video_path, show=False, save=True, tracker="bytetrack.yaml")
