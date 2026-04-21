@@ -73,30 +73,62 @@ if model:
             st.success("Video tracking complete! Output saved to ./runs/detect/track/ folder.")
             os.remove(video_path)
 
-    with tab3:
-        st.header("Live Webcam Detection")
-        st.write("Click START to use your webcam and detect potholes in real-time.")
+        with tab3:
+            st.header("Live Webcam Detection")
+            st.write("Click START to enable your webcam for real-time pothole detection.")
+            st.info("⚠️ Note: This feature requires a webcam and browser camera access. Performance depends on your device.")
 
-        try:
-            from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
-            import av
+            try:
+                from streamlit_webrtc import webrtc_streamer, VideoTransformerBase, RTCConfiguration
+                import av
 
-            class VideoProcessor(VideoTransformerBase):
-                def __init__(self, model_instance):
-                    self.model = model_instance
+                class VideoProcessor(VideoTransformerBase):
+                    def __init__(self, model_instance):
+                        self.model = model_instance
+                        self.frame_count = 0
+                        self.skip_frames = 2  # Process every 3rd frame for better performance
 
-                def recv(self, frame: av.VideoFrame) -> av.VideoFrame:
-                    img = frame.to_ndarray(format="bgr24")
-                    # Run YOLO inference
-                    results = self.model.predict(img, conf=0.25, verbose=False)
-                    # Plot bounding boxes
-                    annotated_frame = results[0].plot()
-                    return av.VideoFrame.from_ndarray(annotated_frame, format="bgr24")
+                    def recv(self, frame: av.VideoFrame) -> av.VideoFrame:
+                        try:
+                            # Skip frames for performance
+                            self.frame_count += 1
+                            if self.frame_count % (self.skip_frames + 1) != 0:
+                                return frame
+                            
+                            # Convert frame to numpy array
+                            img = frame.to_ndarray(format="bgr24")
+                            
+                            # Run YOLO inference
+                            results = self.model.predict(img, conf=0.25, verbose=False)
+                            
+                            # Plot bounding boxes if detections found
+                            if results and len(results) > 0 and results[0].boxes is not None:
+                                annotated_frame = results[0].plot()
+                            else:
+                                annotated_frame = img
+                            
+                            return av.VideoFrame.from_ndarray(annotated_frame, format="bgr24")
+                        
+                        except Exception as e:
+                            st.warning(f"Error processing frame: {str(e)}")
+                            return frame
 
-            webrtc_streamer(key="pothole-detection", video_processor_factory=lambda: VideoProcessor(model))
+                # RTCConfiguration for better connection stability
+                rtc_configuration = RTCConfiguration(
+                    {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
+                )
 
-        except ImportError:
-            st.error("streamlit-webrtc is not installed. Please install it using `pip install streamlit-webrtc`.")
+                webrtc_streamer(
+                    key="pothole-detection",
+                    video_processor_factory=lambda: VideoProcessor(model),
+                    rtc_configuration=rtc_configuration,
+                    media_stream_constraints={"video": True, "audio": False}
+                )
+                
+                st.caption("💡 Tip: Every 3rd frame is processed for better performance. Detections are shown in real-time.")
+
+            except ImportError:
+                st.error("❌ streamlit-webrtc is not installed. Run: pip install streamlit-webrtc")
 else:
     st.info("YOLO model not loaded. Please ensure the model is trained and weights are available.")
     

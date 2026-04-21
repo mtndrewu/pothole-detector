@@ -4,3 +4,4 @@ kagglehub
 PyYAML
 streamlit-webrtc
 opencv-python-headless
+streamlit-webrtc>=0.47.0
