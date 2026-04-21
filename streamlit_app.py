@@ -37,7 +37,7 @@ if model:
             with open(temp_image_path, "wb") as f:
                 f.write(uploaded_file.getbuffer())
 
-            st.image(uploaded_file, caption='Uploaded Image', width=None)
+            st.image(uploaded_file, caption='Uploaded Image', use_column_width=True)
             st.write("Detecting potholes...")
             results = model.predict(temp_image_path, save=True, imgsz=640, conf=0.25)
 
@@ -50,7 +50,7 @@ if model:
                     predicted_image_path = os.path.join(latest_predict_dir, predicted_image_name)
 
                     if os.path.exists(predicted_image_path):
-                        st.image(predicted_image_path, caption='Detection Results', width=None)
+                        st.image(predicted_image_path, caption='Detection Results', use_column_width=True)
                     else:
                         st.warning(f"Could not find the annotated image at {predicted_image_path}. It might not have been saved correctly.")
                 else:
